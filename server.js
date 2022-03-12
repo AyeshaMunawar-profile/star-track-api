@@ -79,7 +79,7 @@ app.get('/profile/:id', (request, response) => {
     if(userData) {
         response.json(userData);
     }else{
-        response.json("Ooops! user not found !");
+        response.status(404).json("Ooops! user not found !");
     }
 })
 app.listen(2000, () => {
