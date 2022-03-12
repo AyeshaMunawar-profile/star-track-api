@@ -42,6 +42,11 @@ const database = {
         }
     ]
 }
+const searchByID = (id) => {
+    return database.users.find((currentUser) => {
+        return currentUser.id === id;
+    });
+}
 app.get("/", (request, response) => {
     response.send(database.users);
 })
@@ -73,23 +78,29 @@ app.post("/register", (request, response) => {
 });
 app.get('/profile/:id', (request, response) => {
     const {id} = request.params;
-    const userData = database.users.find((currentUser) => {
-        return currentUser.id===id;
-    });
-    if(userData) {
+    const userData = searchByID(id);
+    if (userData) {
         response.json(userData);
-    }else{
+    } else {
         response.status(404).json("Ooops! user not found !");
+    }
+})
+app.post("/image", (request, response) => {
+    const {id, imageUrl, celebrityName, imageId} = request.body;
+    const userData = searchByID(id);
+    if (userData) {
+        userData.history.push({
+            imageUrl,
+            celebrityName,
+            imageId
+        });
+        userData.entries++;
+        response.json("User history updated successfully");
+    } else {
+        response.status(404).json("invalid account")
     }
 })
 app.listen(2000, () => {
     console.log("App is running on port 3000")
 })
 
-/*
-/ -> THis is working
-/sign-in ...> POST success / fail
-/register ...> POST = new user
-/profile/:userId ...> GET = user
-/image ...> PUT ...> user
-*/
