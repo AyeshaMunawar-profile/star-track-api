@@ -1,9 +1,7 @@
 import express, {request, response} from "express";
 import bodyParser from "body-parser";
+import bcrypt from "bcryptjs";
 
-const app = express();
-// middle ware
-app.use(bodyParser.json())
 const database = {
     users: [
         {
@@ -40,15 +38,27 @@ const database = {
                 }
             ]
         }
+    ],
+    login: [
+        {
+            id: "124",
+            hash: "",
+            email: "moneezasyed234@gmail.com"
+        }
     ]
 }
+
+const app = express();
+// middle ware
+app.use(bodyParser.json())
+
 const searchByID = (id) => {
     return database.users.find((currentUser) => {
         return currentUser.id === id;
     });
 }
 app.get("/", (request, response) => {
-    response.send(database.users);
+    response.send(database);
 })
 app.post("/sign-in", (request, response) => {
     if (request.body.email === database.users[0].email) {
@@ -63,18 +73,34 @@ app.post("/sign-in", (request, response) => {
 })
 app.post("/register", (request, response) => {
     let {firstName, lastName, email, dateOfBirth, password} = request.body;
-    database.users.push({
-        id: "124334",
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        dateOfBirth: "Sat Mar 12 2002 08:42:24 GMT+0500 (Pakistan Standard Time)",
-        password: password,
-        entries: 0,
-        joined: new Date(),
-        history: []
+    // salt rounds are the number of iteration done by bcrypt
+    // it means bcrypt iterates 2^10 times i.e. 1024 times over the password stirng for the process called as key stretching
+    bcrypt.genSalt(10, function (err, salt) {
+        bcrypt.hash(password, salt, function (err, hash) {
+            // Store hash in your password DB.
+            if (hash) {
+                database.login.push({
+                    id: "124334",
+                    hash: hash,
+                    email: email
+                });
+                database.users.push({
+                    id: "124334",
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email,
+                    dateOfBirth: dateOfBirth,
+                    password: password,
+                    entries: 0,
+                    joined: new Date(),
+                    history: []
+                });
+            } else if (err) {
+                response.json("Couldn't register user")
+            }
+        });
     });
-    response.json(database.users[database.users.length - 1]);
+    response.json(database.login[database.login.length-1]);
 });
 app.get('/profile/:id', (request, response) => {
     const {id} = request.params;
@@ -100,7 +126,24 @@ app.post("/image", (request, response) => {
         response.status(404).json("invalid account")
     }
 })
-app.listen(2000, () => {
+app.listen(3000, () => {
     console.log("App is running on port 3000")
 })
 
+// bcrypt.genSalt(10, function(err, salt) {
+//     bcrypt.hash("B4c0/\/", salt, function(err, hash) {
+//         // Store hash in your password DB.
+//     });
+// });
+// // Load hash from your password DB.
+// bcrypt.compare("B4c0/\/", hash, function(err, res) {
+//     // res === true
+// });
+// bcrypt.compare("not_bacon", hash, function(err, res) {
+//     // res === false
+// });
+//
+// // As of bcryptjs 2.4.0, compare returns a promise if callback is omitted:
+// bcrypt.compare("B4c0/\/", hash).then((res) => {
+//     // res === true
+// });
