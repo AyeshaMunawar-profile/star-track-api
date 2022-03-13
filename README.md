@@ -12,6 +12,7 @@ A fullstack single page cross-platform webapp that allows a user ot create an ac
 3) Create a basic server 
 4) Handle basic API requests like `GET, POST, PUT` and `DELETE`
 5) How to use [`Post man`](https://www.postman.com/)
+6) Add linting to the project
 
 
 ###**Features** 
