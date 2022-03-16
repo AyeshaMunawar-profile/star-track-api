@@ -59,20 +59,24 @@ const searchByID = (id) => {
     return currentUser.id === id
   })
 }
+
 app.get('/', (request, response) => {
   response.send(database)
 })
-app.post('/sign-in', (request, response) => {
-  if (request.body.email === database.users[0].email) {
+
+app.post('/signin', (request, response) => {
+  console.log('request received', request.body)
+  if (!request.body.email || !request.body.password) {
+    response.status(400).json({ message: 'Kindly fill the missing entry' })
+  } else if (request.body.email === database.users[0].email) {
     if (request.body.password === database.users[0].password) {
-      response.json('Success full login')
+      response.status(200).json(database.users[0])
     } else {
-      response.status(400).json('error logging in ')
+      response.status(400).json({ message: 'Wrong email or password' })
     }
   }
-
-  response.send('Signing')
 })
+
 app.post('/register', (request, response) => {
   const { firstName, lastName, email, dateOfBirth, password } = request.body
   // salt rounds are the number of iteration done by bcrypt
@@ -108,6 +112,7 @@ app.post('/register', (request, response) => {
   })
   response.json(database.login[database.login.length - 1])
 })
+
 app.get('/profile/:id', (request, response) => {
   const { id } = request.params
   const userData = searchByID(id)
@@ -117,6 +122,7 @@ app.get('/profile/:id', (request, response) => {
     response.status(404).json('Ooops! user not found !')
   }
 })
+
 app.post('/image', (request, response) => {
   const { id, imageUrl, celebrityName, imageId } = request.body
   const userData = searchByID(id)
@@ -132,6 +138,7 @@ app.post('/image', (request, response) => {
     response.status(404).json('invalid account')
   }
 })
+
 app.listen(3000, () => {
   console.log('App is running on port 3000')
 })
