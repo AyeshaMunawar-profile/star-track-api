@@ -107,7 +107,7 @@ app.post('/register', (request, response) => {
     })
     if (err) {
       console.log('Failed to generate hash for the password')
-      response.status(404).json("Opps ! new account couldn't be created")
+      response.status(404).json("Oops ! new account couldn't be created")
     }
   })
   response.json(database.login[database.login.length - 1])
